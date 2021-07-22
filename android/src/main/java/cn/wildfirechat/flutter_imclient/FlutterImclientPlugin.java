@@ -118,7 +118,7 @@ public class FlutterImclientPlugin implements FlutterPlugin, MethodCallHandler, 
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_imclient");
     channel.setMethodCallHandler(this);
 
-    PushService.init(flutterPluginBinding.getApplicationContext(), BuildConfig.APPLICATION_ID, new PushService.IPushCallback() {
+    PushService.init(flutterPluginBinding.getApplicationContext(), BuildConfig.LIBRARY_PACKAGE_NAME, new PushService.IPushCallback() {
       @Override
       public void onPushToken(int pushType, String pushToken) {
         if(TextUtils.isEmpty(pushToken)) {
