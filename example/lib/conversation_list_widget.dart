@@ -25,7 +25,7 @@ class ConversationListWidget extends StatefulWidget {
 }
 
 class _ConversationListWidgetState extends State<ConversationListWidget> {
-  List<ConversationInfo> conversationInfos = new List();
+  List<ConversationInfo> conversationInfos = <ConversationInfo>[];
   StreamSubscription<ConnectionStatusChangedEvent> _connectionStatusSubscription;
   StreamSubscription<ReceiveMessagesEvent> _receiveMessageSubscription;
   StreamSubscription<UserSettingUpdatedEvent> _userSettingUpdatedSubscription;

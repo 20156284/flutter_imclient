@@ -26,8 +26,9 @@ class LoginScreenState extends State<LoginScreen> {
   Timer _timer;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
+
   }
 
   final phoneFieldController = TextEditingController(text: "18318186208");

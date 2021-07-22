@@ -62,7 +62,7 @@ class ModifyGroupMemberAliasNotificationContent
     if (operateUser == await FlutterImclient.currentUserId) {
       formatMsg = '你';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(operateUser!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {
@@ -88,7 +88,7 @@ class ModifyGroupMemberAliasNotificationContent
     } else if (memberId == null || memberId!.isEmpty) {
       formatMsg = '$formatMsg 自己';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(memberId!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

@@ -62,7 +62,7 @@ class GroupPrivateChatNotificationContent extends NotificationMessageContent {
     if (invitor == await FlutterImclient.currentUserId) {
       return '你 $str';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(invitor!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

@@ -59,7 +59,7 @@ class GroupSetManagerNotificationContent extends NotificationMessageContent {
     if (operatorId == await FlutterImclient.currentUserId) {
       formatMsg = '你';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(operatorId!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {
@@ -89,7 +89,7 @@ class GroupSetManagerNotificationContent extends NotificationMessageContent {
       if (memberId == await FlutterImclient.currentUserId) {
         formatMsg = '$formatMsg 你';
       } else {
-        UserInfo userInfo =
+        UserInfo? userInfo =
             await FlutterImclient.getUserInfo(memberId, groupId: groupId!);
         if (userInfo != null) {
           if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

@@ -50,7 +50,7 @@ class QuitGroupNotificationContent extends NotificationMessageContent {
     if (quitMember == await FlutterImclient.currentUserId) {
       return '你 退出了群组';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(quitMember!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

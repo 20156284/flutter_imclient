@@ -58,7 +58,7 @@ class GroupMemberMuteNotificationContent extends NotificationMessageContent {
     if (creator == await FlutterImclient.currentUserId) {
       formatMsg = '你';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(creator!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {
@@ -88,7 +88,7 @@ class GroupMemberMuteNotificationContent extends NotificationMessageContent {
       if (memberId == await FlutterImclient.currentUserId) {
         formatMsg = '$formatMsg 你';
       } else {
-        UserInfo userInfo =
+        UserInfo? userInfo =
             await FlutterImclient.getUserInfo(memberId, groupId: groupId!);
         if (userInfo != null) {
           if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

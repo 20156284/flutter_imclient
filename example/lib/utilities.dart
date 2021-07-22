@@ -12,6 +12,7 @@ class Utilities {
       // var format = new DateFormat('HH:mm');
       // time = format.format(date);
       time = DateUtil.formatDate(date,format: DateFormats.h_m);
+      // time ="";
     } else {
 
       if (diff.inDays == 1) {
@@ -20,6 +21,7 @@ class Utilities {
         // var format = new DateFormat('MM-dd');
         // time = format.format(date);
         time = DateUtil.formatDate(date,format: DateFormats.mo_d);
+        // time ="";
       }
     }
 

@@ -51,7 +51,7 @@ class ChangeGroupPortraitNotificationContent
     if (operateUser == await FlutterImclient.currentUserId) {
       return '你 修改了群头像';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(operateUser!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

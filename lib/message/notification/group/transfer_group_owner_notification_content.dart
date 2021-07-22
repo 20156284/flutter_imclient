@@ -54,7 +54,7 @@ class TransferGroupOwnerNotificationContent extends NotificationMessageContent {
     if (operateUser == await FlutterImclient.currentUserId) {
       formatMsg = '你';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(operateUser!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {
@@ -78,7 +78,7 @@ class TransferGroupOwnerNotificationContent extends NotificationMessageContent {
     if (owner == await FlutterImclient.currentUserId) {
       formatMsg = '$formatMsg 你';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(owner!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

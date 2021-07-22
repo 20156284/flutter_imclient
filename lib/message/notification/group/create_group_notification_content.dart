@@ -53,7 +53,7 @@ class CreateGroupNotificationContent extends NotificationMessageContent {
     if (creator == await FlutterImclient.currentUserId) {
       return '你 创建了群组';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(creator!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

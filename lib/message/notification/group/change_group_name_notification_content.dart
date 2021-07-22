@@ -53,7 +53,7 @@ class ChangeGroupNameNotificationContent extends NotificationMessageContent {
     if (operateUser == await FlutterImclient.currentUserId) {
       return '你 修改群名片为: $name';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(operateUser!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {

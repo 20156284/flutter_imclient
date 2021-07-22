@@ -63,7 +63,7 @@ class RecallNotificationContent extends NotificationMessageContent {
 
   @override
   Future<String> digest(Message message) async {
-    UserInfo userInfo;
+    UserInfo? userInfo;
     if (message.conversation != null &&
         message.conversation!.conversationType == ConversationType.Group) {
       userInfo = await FlutterImclient.getUserInfo(operatorId!,

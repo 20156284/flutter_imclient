@@ -119,7 +119,7 @@ packages:
       name: decimal
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.2.0"
+    version: "1.3.0"
   event_bus:
     dependency: "direct main"
     description:
@@ -374,7 +374,7 @@ packages:
     source: hosted
     version: "0.27.1"
   shared_preferences:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shared_preferences
       url: "https://pub.flutter-io.cn"

@@ -424,7 +424,7 @@ class FlutterImclient {
           List<dynamic> groups = args['groups'];
           List<GroupInfo> data = <GroupInfo>[];
           groups.forEach((element) {
-            data.add(_convertProtoGroupInfo(element));
+            data.add(_convertProtoGroupInfo(element!)!);
           });
           if (_groupInfoUpdatedCallback != null) {
             _groupInfoUpdatedCallback!(data);
@@ -445,11 +445,11 @@ class FlutterImclient {
           _eventBus.fire(GroupMembersUpdatedEvent(groupId, data));
           break;
         case 'onUserInfoUpdated':
-          Map<dynamic, dynamic> args = call.arguments;
-          List<dynamic> users = args['users'];
+          Map<dynamic, dynamic?> args = call.arguments;
+          List<dynamic> users = args['users']!;
           List<UserInfo> data = <UserInfo>[];
           users.forEach((element) {
-            data.add(_convertProtoUserInfo(element));
+            data.add(_convertProtoUserInfo(element!)!);
           });
           if (_userInfoUpdatedCallback != null) {
             _userInfoUpdatedCallback!(data);
@@ -554,9 +554,9 @@ class FlutterImclient {
           _removeOperationCallback(requestId);
           break;
         case 'getUserInfoAsyncCallback':
-          Map<dynamic, dynamic> args = call.arguments;
+          Map<dynamic, dynamic?> args = call.arguments;
           int requestId = args['requestId'];
-          Map<dynamic, dynamic> data = args['user'];
+          Map<dynamic, dynamic> data = args['user']!;
           var callback = _operationSuccessCallbackMap[requestId];
           if (callback != null) {
             callback(_convertProtoUserInfo(data));
@@ -756,6 +756,7 @@ class FlutterImclient {
       infos.add(await _convertProtoConversationInfo(element));
     }
 
+
     return infos;
   }
 
@@ -852,10 +853,10 @@ class FlutterImclient {
     return groupSearchInfo;
   }
 
-  static UnreadCount _convertProtoUnreadCount(Map<dynamic, dynamic> map) {
-    // if (map == null) {
-    //   return null;
-    // }
+  static UnreadCount? _convertProtoUnreadCount(Map<dynamic, dynamic> map) {
+    if (map == null) {
+      return null;
+    }
     UnreadCount unreadCount = new UnreadCount();
     if (map['unread'] != null) unreadCount.unread = map['unread'];
     if (map['unreadMention'] != null)
@@ -934,8 +935,8 @@ class FlutterImclient {
     return report;
   }
 
-  static GroupInfo _convertProtoGroupInfo(Map<dynamic, dynamic> map) {
-    // if (map == null) return null;
+  static GroupInfo? _convertProtoGroupInfo(Map<dynamic, dynamic> map) {
+    if (map == null) return null;
 
     GroupInfo groupInfo = new GroupInfo();
     groupInfo.type = GroupType.values[map['type']];
@@ -984,10 +985,10 @@ class FlutterImclient {
     return list;
   }
 
-  static UserInfo _convertProtoUserInfo(Map<dynamic, dynamic> map) {
-    // if (map == null) {
-    //   return null;
-    // }
+  static UserInfo? _convertProtoUserInfo(Map<dynamic, dynamic> map) {
+    if (map == null) {
+      return null;
+    }
     UserInfo userInfo = new UserInfo();
     userInfo.userId = map['userId'];
     userInfo.name = map['name'];
@@ -1014,7 +1015,7 @@ class FlutterImclient {
     }
     List<UserInfo> list = <UserInfo>[];
     datas.forEach((element) {
-      list.add(_convertProtoUserInfo(element));
+      list.add(_convertProtoUserInfo(element!)!);
     });
     return list;
   }
@@ -1300,7 +1301,7 @@ class FlutterImclient {
   }
 
   ///设置会话未读状态
-  static Future<UnreadCount> getConversationUnreadCount(
+  static Future<UnreadCount?> getConversationUnreadCount(
       Conversation conversation) async {
     Map<dynamic, dynamic> datas = await _channel.invokeMethod(
         'getConversationUnreadCount',
@@ -1309,7 +1310,7 @@ class FlutterImclient {
   }
 
   ///设置某些类型会话未读状态
-  static Future<UnreadCount> getConversationsUnreadCount(
+  static Future<UnreadCount?> getConversationsUnreadCount(
       List<ConversationType> types, List<int> lines) async {
     List<int> itypes = <int>[];
     types.forEach((element) {
@@ -1719,7 +1720,7 @@ class FlutterImclient {
   }
 
   ///获取用户信息
-  static Future<UserInfo> getUserInfo(String userId,
+  static Future<UserInfo?> getUserInfo(String userId,
       {String? groupId, bool refresh = false}) async {
     var args = {"userId": userId, "refresh": refresh};
     if (groupId != null) {
@@ -1981,7 +1982,7 @@ class FlutterImclient {
   }
 
   ///获取群信息
-  static Future<GroupInfo> getGroupInfo(String groupId,
+  static Future<GroupInfo?> getGroupInfo(String groupId,
       {bool refresh = false}) async {
     Map<dynamic, dynamic> datas = await _channel
         .invokeMethod("getGroupInfo", {"groupId": groupId, "refresh": refresh});

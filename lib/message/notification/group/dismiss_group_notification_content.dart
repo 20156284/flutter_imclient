@@ -50,7 +50,7 @@ class DismissGroupNotificationContent extends NotificationMessageContent {
     if (operateUser == await FlutterImclient.currentUserId) {
       return '你 销毁了群组';
     } else {
-      UserInfo userInfo =
+      UserInfo? userInfo =
           await FlutterImclient.getUserInfo(operateUser!, groupId: groupId!);
       if (userInfo != null) {
         if (userInfo.friendAlias != null && userInfo.friendAlias!.isNotEmpty) {
