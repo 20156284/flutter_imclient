@@ -204,11 +204,9 @@ public class FlutterImclientPlugin implements FlutterPlugin, MethodCallHandler, 
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
-    }
-    else if("isLogined".equals(call.method)) {
+    } else if("isLogined".equals(call.method)) {
       result.success(isLogined);
-    }
-    else if("connect".equals(call.method)) {
+    } else if("connect".equals(call.method)) {
       String host = call.argument("host");
       String token = call.argument("token");
       userId = call.argument("userId");
