@@ -31,7 +31,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   }
 
-  final phoneFieldController = TextEditingController(text: "18318186208");
+  final phoneFieldController = TextEditingController(text: "1864323703");
   final codeFieldController = TextEditingController();
 
   @override

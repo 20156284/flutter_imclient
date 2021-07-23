@@ -72,8 +72,8 @@ typedef void MessageDeliveriedCallback(Map<String, int> deliveryMap);
 typedef void MessageReadedCallback(List<ReadReport> readReports);
 
 typedef void GroupInfoUpdatedCallback(List<GroupInfo> groupInfos);
-typedef void GroupMemberUpdatedCallback(
-    String groupId, List<GroupMember> members);
+typedef void GroupMemberUpdatedCallback(String groupId,
+    List<GroupMember> members);
 typedef void UserInfoUpdatedCallback(List<UserInfo> userInfos);
 
 typedef void FriendListUpdatedCallback(List<String> newFriends);
@@ -284,12 +284,12 @@ class FlutterImclient {
 
   static int _requestId = 0;
   static Map<int, SendMessageSuccessCallback> _sendMessageSuccessCallbackMap =
-      {};
+  {};
   static Map<int, OperationFailureCallback> _errorCallbackMap = {};
   static Map<int, SendMediaMessageProgressCallback>
-      _sendMediaMessageProgressCallbackMap = {};
+  _sendMediaMessageProgressCallbackMap = {};
   static Map<int, SendMediaMessageUploadedCallback>
-      _sendMediaMessageUploadedCallbackMap = {};
+  _sendMediaMessageUploadedCallbackMap = {};
 
   static Map<int, dynamic> _operationSuccessCallbackMap = {};
 
@@ -300,14 +300,14 @@ class FlutterImclient {
       RecallMessageCallback recallMessageCallback,
       DeleteMessageCallback deleteMessageCallback,
       {MessageDeliveriedCallback? messageDeliveriedCallback,
-      MessageReadedCallback? messageReadedCallback,
-      GroupInfoUpdatedCallback? groupInfoUpdatedCallback,
-      GroupMemberUpdatedCallback? groupMemberUpdatedCallback,
-      UserInfoUpdatedCallback? userInfoUpdatedCallback,
-      FriendListUpdatedCallback? friendListUpdatedCallback,
-      FriendRequestListUpdatedCallback? friendRequestListUpdatedCallback,
-      UserSettingsUpdatedCallback? userSettingsUpdatedCallback,
-      ChannelInfoUpdatedCallback? channelInfoUpdatedCallback}) async {
+        MessageReadedCallback? messageReadedCallback,
+        GroupInfoUpdatedCallback? groupInfoUpdatedCallback,
+        GroupMemberUpdatedCallback? groupMemberUpdatedCallback,
+        UserInfoUpdatedCallback? userInfoUpdatedCallback,
+        FriendListUpdatedCallback? friendListUpdatedCallback,
+        FriendRequestListUpdatedCallback? friendRequestListUpdatedCallback,
+        UserSettingsUpdatedCallback? userSettingsUpdatedCallback,
+        ChannelInfoUpdatedCallback? channelInfoUpdatedCallback}) async {
     _connectionStatusChangedCallback = connectionStatusChangedCallback;
     _receiveMessageCallback = receiveMessageCallback;
     _recallMessageCallback = recallMessageCallback;
@@ -358,7 +358,7 @@ class FlutterImclient {
     registeMessageContent(typingContentMeta);
     registeMessageContent(videoContentMeta);
 
-    _channel.setMethodCallHandler((MethodCall call) async{
+    _channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'onConnectionStatusChanged':
           int status = call.arguments;
@@ -699,23 +699,25 @@ class FlutterImclient {
     _channel.invokeMethod('registeMessage', map);
   }
 
-  static Future<Message?> _convertProtoMessage(Map<dynamic, dynamic> map) async {
-    if (map == null) {
+  static Future<Message?> _convertProtoMessage(dynamic data) async {
+    if (data != null && data is Map) {
+      Map<dynamic, dynamic> map = data.cast();
+      Message msg = new Message();
+      msg.messageId = map['messageId'];
+      msg.messageUid = map['messageUid'];
+      msg.conversation = _convertProtoConversation(map['conversation']);
+      msg.fromUser = map['fromUser'];
+      msg.toUsers =
+      map['toUsers'] == null ? null : (map['toUsers']! as List).cast<String>();
+      msg.content =
+          decodeMessageContent(_convertProtoMessageContent(map['content']!));
+      msg.direction = MessageDirection.values[map['direction']];
+      msg.status = MessageStatus.values[map['status']];
+      msg.serverTime = map['timestamp'];
+      return msg;
+    } else {
       return null;
     }
-
-    Message msg = new Message();
-    msg.messageId = map['messageId'];
-    msg.messageUid = map['messageUid'];
-    msg.conversation = _convertProtoConversation(map['conversation']);
-    msg.fromUser = map['fromUser'];
-    msg.toUsers =map['toUsers'] == null?null:(map['toUsers']! as List).cast<String>();
-    msg.content =
-        decodeMessageContent(_convertProtoMessageContent(map['content']));
-    msg.direction = MessageDirection.values[map['direction']];
-    msg.status = MessageStatus.values[map['status']];
-    msg.serverTime = map['timestamp'];
-    return msg;
   }
 
   static Future<List<Message>> _convertProtoMessages(
@@ -751,11 +753,12 @@ class FlutterImclient {
       return <ConversationInfo>[];
     }
     List<ConversationInfo> infos = <ConversationInfo>[];
-    for (int i = 0; i < maps.length; ++i) {
-      var element = maps[i];
-      infos.add(await _convertProtoConversationInfo(element));
-    }
 
+    maps.forEach((element) async {
+      if (element != null) {
+        infos.add(await _convertProtoConversationInfo(element));
+      }
+    });
 
     return infos;
   }
@@ -766,7 +769,7 @@ class FlutterImclient {
     conversationInfo.conversation =
         _convertProtoConversation(map['conversation']);
     conversationInfo.lastMessage =
-        await _convertProtoMessage(map['lastMessage']);
+    await _convertProtoMessage(map['lastMessage']);
     conversationInfo.draft = map['draft'];
     if (map['timestamp'] != null) conversationInfo.timestamp = map['timestamp'];
     if (map['isTop'] != null) conversationInfo.isTop = map['isTop'];
@@ -777,12 +780,12 @@ class FlutterImclient {
   }
 
   static Future<List<ConversationSearchInfo>>
-      _convertProtoConversationSearchInfos(List<dynamic> maps) async {
+  _convertProtoConversationSearchInfos(List<dynamic> maps) async {
     if (maps.isEmpty) {
-      return  <ConversationSearchInfo>[];
+      return <ConversationSearchInfo>[];
     }
 
-    List<ConversationSearchInfo> infos =<ConversationSearchInfo>[];
+    List<ConversationSearchInfo> infos = <ConversationSearchInfo>[];
     for (int i = 0; i < maps.length; i++) {
       var element = maps[i];
       infos.add(await _convertProtoConversationSearchInfo(element));
@@ -797,7 +800,7 @@ class FlutterImclient {
     conversationInfo.conversation =
         _convertProtoConversation(map['conversation']);
     conversationInfo.marchedMessage =
-        await _convertProtoMessage(map['marchedMessage']);
+    await _convertProtoMessage(map['marchedMessage']);
     if (map['marchedCount'] != null) {
       conversationInfo.marchedCount = map['marchedCount'];
     }
@@ -812,7 +815,7 @@ class FlutterImclient {
     friendRequest.reason = data['reason'];
     friendRequest.status = FriendRequestStatus.values[data['status']];
     friendRequest.readStatus =
-        FriendRequestReadStatus.values[data['readStatus']];
+    FriendRequestReadStatus.values[data['readStatus']];
     friendRequest.timestamp = data['timestamp'];
     return friendRequest;
   }
@@ -976,7 +979,7 @@ class FlutterImclient {
 
   static List<GroupMember> _convertProtoGroupMembers(List<dynamic> datas) {
     if (datas.isEmpty) {
-      return  <GroupMember>[];
+      return <GroupMember>[];
     }
     List<GroupMember> list = <GroupMember>[];
     datas.forEach((element) {
@@ -1133,19 +1136,22 @@ class FlutterImclient {
     return list;
   }
 
-  static List<String> convertDynamicList(List<dynamic> datas) {
-    if (datas == null || datas.isEmpty) {
+  static List<String> convertDynamicList(dynamic datas) {
+    if (datas != null && datas is List && datas.isNotEmpty) {
+      List<String> list = <String>[];
+      datas.forEach((element) {
+        list.add(element);
+      });
+      return list;
+    }
+    else {
       return <String>[];
     }
-    List<String> list = <String>[];
-    datas.forEach((element) {
-      list.add(element);
-    });
-    return list;
   }
 
   static MessageContent decodeMessageContent(MessagePayload payload) {
-    MessageContentMeta meta = _contentMetaMap[payload.contentType] as MessageContentMeta;
+    MessageContentMeta meta = _contentMetaMap[payload
+        .contentType] as MessageContentMeta;
     MessageContent content;
     if (meta == null) {
       content = new UnknownMessageContent();
@@ -1202,14 +1208,14 @@ class FlutterImclient {
       Conversation conversation) async {
     var args = _convertConversation(conversation);
     Map<dynamic, dynamic> datas =
-        await _channel.invokeMethod("getConversationInfo", args);
+    await _channel.invokeMethod("getConversationInfo", args);
     ConversationInfo info = await _convertProtoConversationInfo(datas);
     return info;
   }
 
   ///搜索会话信息
-  static Future<List<ConversationSearchInfo>> searchConversation(
-      String keyword, List<ConversationType> types, List<int> lines) async {
+  static Future<List<ConversationSearchInfo>> searchConversation(String keyword,
+      List<ConversationType> types, List<int> lines) async {
     List<int> itypes = <int>[];
     types.forEach((element) {
       itypes.add(element.index);
@@ -1221,13 +1227,13 @@ class FlutterImclient {
     List<dynamic> datas = await _channel.invokeMethod('searchConversation',
         {'keyword': keyword, 'types': itypes, 'lines': lines});
     List<ConversationSearchInfo> infos =
-        await _convertProtoConversationSearchInfos(datas);
+    await _convertProtoConversationSearchInfos(datas);
     return infos;
   }
 
   ///移除会话
-  static Future<void> removeConversation(
-      Conversation conversation, bool clearMessage) async {
+  static Future<void> removeConversation(Conversation conversation,
+      bool clearMessage) async {
     Map<String, dynamic> args = new Map();
     args['conversation'] = _convertConversation(conversation);
     args['clearMessage'] = clearMessage;
@@ -1236,8 +1242,7 @@ class FlutterImclient {
   }
 
   ///设置/取消会话置顶
-  static Future<void> setConversationTop(
-      Conversation conversation,
+  static Future<void> setConversationTop(Conversation conversation,
       bool isTop,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -1256,8 +1261,7 @@ class FlutterImclient {
   }
 
   ///设置/取消会话免到扰
-  static Future<void> setConversationSilent(
-      Conversation conversation,
+  static Future<void> setConversationSilent(Conversation conversation,
       bool isSilent,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -1276,8 +1280,8 @@ class FlutterImclient {
   }
 
   ///保存草稿
-  static Future<void> setConversationDraft(
-      Conversation conversation, String draft) async {
+  static Future<void> setConversationDraft(Conversation conversation,
+      String draft) async {
     Map<String, dynamic> args = new Map();
     args['conversation'] = _convertConversation(conversation);
     args['draft'] = draft;
@@ -1285,8 +1289,8 @@ class FlutterImclient {
   }
 
   ///设置会话时间戳
-  static Future<void> setConversationTimestamp(
-      Conversation conversation, int timestamp) async {
+  static Future<void> setConversationTimestamp(Conversation conversation,
+      int timestamp) async {
     Map<String, dynamic> args = new Map();
     args['conversation'] = _convertConversation(conversation);
     args['timestamp'] = timestamp;
@@ -1382,8 +1386,8 @@ class FlutterImclient {
   }
 
   ///获取会话的消息列表
-  static Future<List<Message>> getMessages(
-      Conversation conversation, int fromIndex, int count,
+  static Future<List<Message>> getMessages(Conversation conversation,
+      int fromIndex, int count,
       {List<int>? contentTypes, String? withUser}) async {
     Map<String, dynamic> args = {
       "conversation": _convertConversation(conversation),
@@ -1417,7 +1421,7 @@ class FlutterImclient {
     }
 
     List<dynamic> datas =
-        await _channel.invokeMethod("getMessagesByStatus", args);
+    await _channel.invokeMethod("getMessagesByStatus", args);
     return _convertProtoMessages(datas);
   }
 
@@ -1447,7 +1451,7 @@ class FlutterImclient {
     }
 
     List<dynamic> datas =
-        await _channel.invokeMethod("getConversationsMessages", args);
+    await _channel.invokeMethod("getConversationsMessages", args);
     return _convertProtoMessages(datas);
   }
 
@@ -1480,13 +1484,12 @@ class FlutterImclient {
     }
 
     List<dynamic> datas =
-        await _channel.invokeMethod("getConversationsMessageByStatus", args);
+    await _channel.invokeMethod("getConversationsMessageByStatus", args);
     return _convertProtoMessages(datas);
   }
 
   ///获取远端历史消息
-  static Future<void> getRemoteMessages(
-      Conversation conversation,
+  static Future<void> getRemoteMessages(Conversation conversation,
       int beforeMessageUid,
       int count,
       OperationSuccessMessagesCallback successCallback,
@@ -1533,13 +1536,13 @@ class FlutterImclient {
 
   ///搜索某些类会话内消息
   static Future<List<Message>> searchConversationsMessages(
-    List<ConversationType> types,
-    List<int> lines,
-    String keyword,
-    int fromIndex,
-    int count, {
-    List<int>? contentTypes,
-  }) async {
+      List<ConversationType> types,
+      List<int> lines,
+      String keyword,
+      int fromIndex,
+      int count, {
+        List<int>? contentTypes,
+      }) async {
     List<int> itypes = <int>[];
     types.forEach((element) {
       itypes.add(element.index);
@@ -1560,17 +1563,17 @@ class FlutterImclient {
     }
 
     List<dynamic> datas =
-        await _channel.invokeMethod("searchConversationsMessages", args);
+    await _channel.invokeMethod("searchConversationsMessages", args);
     return _convertProtoMessages(datas);
   }
 
   ///发送消息
-  static Future<Message?> sendMessage(
-      Conversation conversation, MessageContent content,
+  static Future<Message?> sendMessage(Conversation conversation,
+      MessageContent content,
       {List<String>? toUsers,
-      int expireDuration = 0,
-      SendMessageSuccessCallback? successCallback,
-      OperationFailureCallback? errorCallback}) async {
+        int expireDuration = 0,
+        SendMessageSuccessCallback? successCallback,
+        OperationFailureCallback? errorCallback}) async {
     return sendMediaMessage(conversation, content,
         toUsers: toUsers,
         expireDuration: expireDuration,
@@ -1579,14 +1582,14 @@ class FlutterImclient {
   }
 
   ///发送媒体类型消息
-  static Future<Message?> sendMediaMessage(
-      Conversation conversation, MessageContent content,
+  static Future<Message?> sendMediaMessage(Conversation conversation,
+      MessageContent content,
       {List<String>? toUsers,
-      int? expireDuration,
-      SendMessageSuccessCallback? successCallback,
-      OperationFailureCallback? errorCallback,
-      SendMediaMessageProgressCallback? progressCallback,
-      SendMediaMessageUploadedCallback? uploadedCallback}) async {
+        int? expireDuration,
+        SendMessageSuccessCallback? successCallback,
+        OperationFailureCallback? errorCallback,
+        SendMediaMessageProgressCallback? progressCallback,
+        SendMediaMessageUploadedCallback? uploadedCallback}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _sendMessageSuccessCallbackMap[requestId] = successCallback;
@@ -1615,8 +1618,8 @@ class FlutterImclient {
   ///发送已保存消息
   static Future<bool> sendSavedMessage(int messageId,
       {int? expireDuration,
-      SendMessageSuccessCallback? successCallback,
-      OperationFailureCallback? errorCallback}) async {
+        SendMessageSuccessCallback? successCallback,
+        OperationFailureCallback? errorCallback}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _sendMessageSuccessCallbackMap[requestId] = successCallback;
@@ -1630,8 +1633,7 @@ class FlutterImclient {
   }
 
   ///撤回消息
-  static Future<void> recallMessage(
-      int messageUid,
+  static Future<void> recallMessage(int messageUid,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -1643,8 +1645,7 @@ class FlutterImclient {
   }
 
   ///上传媒体数据
-  static Future<void> uploadMedia(
-      String fileName,
+  static Future<void> uploadMedia(String fileName,
       Uint8List mediaData,
       int mediaType,
       OperationSuccessStringCallback successCallback,
@@ -1686,7 +1687,8 @@ class FlutterImclient {
   }
 
   ///插入消息
-  static Future<Message?> insertMessage(Conversation conversation, String sender,
+  static Future<Message?> insertMessage(Conversation conversation,
+      String sender,
       MessageContent content, int status, int serverTime) async {
     Map<dynamic, dynamic> datas = await _channel.invokeMethod("insertMessage", {
       "conversation": _convertConversation(conversation),
@@ -1698,8 +1700,8 @@ class FlutterImclient {
   }
 
   ///更新消息内容
-  static Future<void> updateMessage(
-      int messageId, MessageContent content) async {
+  static Future<void> updateMessage(int messageId,
+      MessageContent content) async {
     await _channel.invokeMethod("updateMessage", {
       "messageId": messageId.toString(),
       "content": await _convertMessageContent(content)
@@ -1707,8 +1709,8 @@ class FlutterImclient {
   }
 
   ///更新消息状态
-  static Future<void> updateMessageStatus(
-      int messageId, MessageStatus status) async {
+  static Future<void> updateMessageStatus(int messageId,
+      MessageStatus status) async {
     await _channel.invokeMethod("updateMessageStatus",
         {"messageId": messageId.toString(), "status": status.index});
   }
@@ -1728,7 +1730,7 @@ class FlutterImclient {
     }
 
     Map<dynamic, dynamic> datas =
-        await _channel.invokeMethod("getUserInfo", args);
+    await _channel.invokeMethod("getUserInfo", args);
     return _convertProtoUserInfo(datas);
   }
 
@@ -1746,8 +1748,7 @@ class FlutterImclient {
   }
 
   ///搜索用户
-  static Future<List<dynamic>> searchUser(
-      String keyword,
+  static Future<List<dynamic>> searchUser(String keyword,
       int searchType,
       int page,
       OperationSuccessUserInfosCallback successCallback,
@@ -1767,8 +1768,7 @@ class FlutterImclient {
   }
 
   ///异步获取用户信息
-  static Future<void> getUserInfoAsync(
-      String userId,
+  static Future<void> getUserInfoAsync(String userId,
       OperationSuccessUserInfoCallback successCallback,
       OperationFailureCallback errorCallback,
       {bool refresh = false}) async {
@@ -1788,41 +1788,41 @@ class FlutterImclient {
   ///获取好友列表
   static Future<List<String>> getMyFriendList({bool refresh = false}) async {
     List<dynamic> datas =
-        await _channel.invokeMethod("getMyFriendList", {"refresh": refresh});
+    await _channel.invokeMethod("getMyFriendList", {"refresh": refresh});
     return convertDynamicList(datas);
   }
 
   ///搜索好友
   static Future<List<UserInfo>> searchFriends(String keyword) async {
     List<dynamic> datas =
-        await _channel.invokeMethod("searchFriends", {"keyword": keyword});
+    await _channel.invokeMethod("searchFriends", {"keyword": keyword});
     return _convertProtoUserInfos(datas);
   }
 
   ///搜索群组
   static Future<List<GroupSearchInfo>> searchGroups(String keyword) async {
     List<dynamic> datas =
-        await _channel.invokeMethod("searchGroups", {"keyword": keyword});
+    await _channel.invokeMethod("searchGroups", {"keyword": keyword});
     return _convertProtoGroupSearchInfos(datas);
   }
 
   ///获取收到的好友请求列表
   static Future<List<FriendRequest>> getIncommingFriendRequest() async {
     List<dynamic> datas =
-        await _channel.invokeMethod("getIncommingFriendRequest");
+    await _channel.invokeMethod("getIncommingFriendRequest");
     return _convertProtoFriendRequests(datas);
   }
 
   ///获取发出去的好友请求列表
   static Future<List<FriendRequest>> getOutgoingFriendRequest() async {
     List<dynamic> datas =
-        await _channel.invokeMethod("getOutgoingFriendRequest");
+    await _channel.invokeMethod("getOutgoingFriendRequest");
     return _convertProtoFriendRequests(datas);
   }
 
   ///获取某个用户相关的好友请求
-  static Future<FriendRequest> getFriendRequest(
-      String userId, FriendRequestDirection direction) async {
+  static Future<FriendRequest> getFriendRequest(String userId,
+      FriendRequestDirection direction) async {
     Map<dynamic, dynamic> data = await _channel.invokeMethod(
         "getFriendRequest", {"userId": userId, "direction": direction.index});
     return _convertProtoFriendRequest(data);
@@ -1848,8 +1848,7 @@ class FlutterImclient {
   }
 
   ///删除好友
-  static Future<void> deleteFriend(
-      String userId,
+  static Future<void> deleteFriend(String userId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -1861,8 +1860,7 @@ class FlutterImclient {
   }
 
   ///发送好友请求
-  static Future<void> sendFriendRequest(
-      String userId,
+  static Future<void> sendFriendRequest(String userId,
       String reason,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -1875,8 +1873,7 @@ class FlutterImclient {
   }
 
   ///处理好友请求
-  static Future<void> handleFriendRequest(
-      String userId,
+  static Future<void> handleFriendRequest(String userId,
       bool accept,
       String extra,
       OperationSuccessVoidCallback successCallback,
@@ -1896,13 +1893,12 @@ class FlutterImclient {
   ///获取好友备注名
   static Future<String> getFriendAlias(String userId) async {
     String data =
-        await _channel.invokeMethod("getFriendAlias", {"userId": userId});
+    await _channel.invokeMethod("getFriendAlias", {"userId": userId});
     return data;
   }
 
   ///设置好友备注名
-  static Future<void> setFriendAlias(
-      String friendId,
+  static Future<void> setFriendAlias(String friendId,
       String alias,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -1917,27 +1913,26 @@ class FlutterImclient {
   ///获取好友extra信息
   static Future<String> getFriendExtra(String userId) async {
     String data =
-        await _channel.invokeMethod("getFriendExtra", {"userId": userId});
+    await _channel.invokeMethod("getFriendExtra", {"userId": userId});
     return data;
   }
 
   ///是否是黑名单用户
   static Future<bool> isBlackListed(String userId) async {
     bool data =
-        await _channel.invokeMethod("isBlackListed", {"userId": userId});
+    await _channel.invokeMethod("isBlackListed", {"userId": userId});
     return data;
   }
 
   ///获取黑名单列表
   static Future<List<String>> getBlackList({bool refresh = false}) async {
     List<dynamic> datas =
-        await _channel.invokeMethod("getBlackList", {"refresh": refresh});
+    await _channel.invokeMethod("getBlackList", {"refresh": refresh});
     return convertDynamicList(datas);
   }
 
   ///设置/取消用户黑名单
-  static Future<void> setBlackList(
-      String userId,
+  static Future<void> setBlackList(String userId,
       bool isBlackListed,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -1961,8 +1956,8 @@ class FlutterImclient {
   }
 
   ///根据群成员类型获取群成员列表
-  static Future<List<GroupMember>> getGroupMembersByTypes(
-      String groupId, GroupMemberType memberType) async {
+  static Future<List<GroupMember>> getGroupMembersByTypes(String groupId,
+      GroupMemberType memberType) async {
     List<dynamic> datas = await _channel.invokeMethod("getGroupMembersByTypes",
         {"groupId": groupId, "memberType": memberType.index});
     return _convertProtoGroupMembers(datas);
@@ -1971,8 +1966,8 @@ class FlutterImclient {
   ///异步获取群成员列表
   static Future<void> getGroupMembersAsync(String groupId,
       {bool refresh = false,
-      OperationSuccessGroupMembersCallback? successCallback,
-      OperationFailureCallback? errorCallback}) async {
+        OperationSuccessGroupMembersCallback? successCallback,
+        OperationFailureCallback? errorCallback}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -1992,8 +1987,8 @@ class FlutterImclient {
   ///异步获取群信息
   static Future<void> getGroupInfoAsync(String groupId,
       {bool refresh = false,
-      OperationSuccessGroupInfoCallback? successCallback,
-      OperationFailureCallback? errorCallback}) async {
+        OperationSuccessGroupInfoCallback? successCallback,
+        OperationFailureCallback? errorCallback}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2003,16 +1998,15 @@ class FlutterImclient {
   }
 
   ///获取单个群成员信息
-  static Future<GroupMember> getGroupMember(
-      String groupId, String memberId) async {
+  static Future<GroupMember> getGroupMember(String groupId,
+      String memberId) async {
     Map<dynamic, dynamic> datas = await _channel.invokeMethod(
         "getGroupMember", {"groupId": groupId, "memberId": memberId});
     return _convertProtoGroupMember(datas);
   }
 
   ///创建群组，groupId可以为空。
-  static Future<void> createGroup(
-      String groupId,
+  static Future<void> createGroup(String groupId,
       String groupName,
       String groupPortrait,
       int type,
@@ -2020,7 +2014,7 @@ class FlutterImclient {
       OperationSuccessStringCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2050,13 +2044,12 @@ class FlutterImclient {
   }
 
   ///添加群成员
-  static Future<void> addGroupMembers(
-      String groupId,
+  static Future<void> addGroupMembers(String groupId,
       List<String> members,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2071,13 +2064,12 @@ class FlutterImclient {
   }
 
   ///移除群成员
-  static Future<void> kickoffGroupMembers(
-      String groupId,
+  static Future<void> kickoffGroupMembers(String groupId,
       List<String> members,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2092,12 +2084,11 @@ class FlutterImclient {
   }
 
   ///退出群组
-  static Future<void> quitGroup(
-      String groupId,
+  static Future<void> quitGroup(String groupId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2111,12 +2102,11 @@ class FlutterImclient {
   }
 
   ///解散群组
-  static Future<void> dismissGroup(
-      String groupId,
+  static Future<void> dismissGroup(String groupId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2130,14 +2120,13 @@ class FlutterImclient {
   }
 
   ///修改群组信息
-  static Future<void> modifyGroupInfo(
-      String groupId,
+  static Future<void> modifyGroupInfo(String groupId,
       ModifyGroupInfoType modifyType,
       String newValue,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2153,13 +2142,12 @@ class FlutterImclient {
   }
 
   ///修改自己的群名片
-  static Future<void> modifyGroupAlias(
-      String groupId,
+  static Future<void> modifyGroupAlias(String groupId,
       String newAlias,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2174,14 +2162,13 @@ class FlutterImclient {
   }
 
   ///修改群成员的群名片
-  static Future<void> modifyGroupMemberAlias(
-      String groupId,
+  static Future<void> modifyGroupMemberAlias(String groupId,
       String memberId,
       String newAlias,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2196,13 +2183,12 @@ class FlutterImclient {
   }
 
   ///转移群组
-  static Future<void> transferGroup(
-      String groupId,
+  static Future<void> transferGroup(String groupId,
       String newOwner,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2217,14 +2203,13 @@ class FlutterImclient {
   }
 
   ///设置/取消群管理员
-  static Future<void> setGroupManager(
-      String groupId,
+  static Future<void> setGroupManager(String groupId,
       bool isSet,
       List<String> memberIds,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2240,14 +2225,13 @@ class FlutterImclient {
   }
 
   ///禁言/取消禁言群成员
-  static Future<void> muteGroupMember(
-      String groupId,
+  static Future<void> muteGroupMember(String groupId,
       bool isSet,
       List<String> memberIds,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2263,14 +2247,13 @@ class FlutterImclient {
   }
 
   ///设置/取消群白名单
-  static Future<void> allowGroupMember(
-      String groupId,
+  static Future<void> allowGroupMember(String groupId,
       bool isSet,
       List<String> memberIds,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback,
       {List<int> notifyLines = const [],
-      MessageContent? notifyContent}) async {
+        MessageContent? notifyContent}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2296,8 +2279,7 @@ class FlutterImclient {
   }
 
   ///设置/取消收藏群组
-  static Future<void> setFavGroup(
-      String groupId,
+  static Future<void> setFavGroup(String groupId,
       bool isFav,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2321,8 +2303,7 @@ class FlutterImclient {
   }
 
   ///设置用户设置
-  static Future<void> setUserSetting(
-      int scope,
+  static Future<void> setUserSetting(int scope,
       String key,
       String value,
       OperationSuccessVoidCallback successCallback,
@@ -2336,8 +2317,7 @@ class FlutterImclient {
   }
 
   ///修改当前用户信息
-  static Future<void> modifyMyInfo(
-      Map<ModifyMyInfoType, String> values,
+  static Future<void> modifyMyInfo(Map<ModifyMyInfoType, String> values,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2360,8 +2340,7 @@ class FlutterImclient {
   }
 
   ///设置/取消全局静音
-  static Future<void> setGlobalSlient(
-      bool isSilent,
+  static Future<void> setGlobalSlient(bool isSilent,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2385,8 +2364,7 @@ class FlutterImclient {
   }
 
   ///设置免打扰时间段
-  static Future<void> setNoDisturbingTimes(
-      int startMins,
+  static Future<void> setNoDisturbingTimes(int startMins,
       int endMins,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2416,8 +2394,7 @@ class FlutterImclient {
   }
 
   ///设置推送隐藏详情
-  static Future<void> setHiddenNotificationDetail(
-      bool isHidden,
+  static Future<void> setHiddenNotificationDetail(bool isHidden,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2435,8 +2412,7 @@ class FlutterImclient {
   }
 
   ///设置是否群组隐藏用户名
-  static Future<void> setHiddenGroupMemberName(
-      bool isHidden,
+  static Future<void> setHiddenGroupMemberName(bool isHidden,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2453,8 +2429,7 @@ class FlutterImclient {
   }
 
   ///设置当前用户是否启用回执功能，仅当服务支持回执功能有效
-  static Future<void> setUserEnableReceipt(
-      bool isEnable,
+  static Future<void> setUserEnableReceipt(bool isEnable,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2476,8 +2451,7 @@ class FlutterImclient {
   }
 
   ///设置收藏用户
-  static Future<void> setFavUser(
-      String userId,
+  static Future<void> setFavUser(String userId,
       bool isFav,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2490,8 +2464,7 @@ class FlutterImclient {
   }
 
   ///加入聊天室
-  static Future<void> joinChatroom(
-      String chatroomId,
+  static Future<void> joinChatroom(String chatroomId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2503,8 +2476,7 @@ class FlutterImclient {
   }
 
   ///退出聊天室
-  static Future<void> quitChatroom(
-      String chatroomId,
+  static Future<void> quitChatroom(String chatroomId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2516,8 +2488,7 @@ class FlutterImclient {
   }
 
   ///获取聊天室信息
-  static Future<void> getChatroomInfo(
-      String chatroomId,
+  static Future<void> getChatroomInfo(String chatroomId,
       int updateDt,
       OperationSuccessChatroomInfoCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2533,8 +2504,7 @@ class FlutterImclient {
   }
 
   ///获取聊天室成员信息
-  static Future<void> getChatroomMemberInfo(
-      String chatroomId,
+  static Future<void> getChatroomMemberInfo(String chatroomId,
       OperationSuccessChatroomMemberInfoCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2546,8 +2516,7 @@ class FlutterImclient {
   }
 
   ///创建频道
-  static Future<void> createChannel(
-      String channelName,
+  static Future<void> createChannel(String channelName,
       String channelPortrait,
       int status,
       String desc,
@@ -2569,7 +2538,7 @@ class FlutterImclient {
   }
 
   ///获取频道信息
-  static Future<ChannelInfo> getChannelInfo(String channelId,
+  static Future<ChannelInfo?> getChannelInfo(String channelId,
       {bool refresh = false}) async {
     Map<dynamic, dynamic> data = await _channel.invokeMethod(
         "getChannelInfo", {"channelId": channelId, "refresh": refresh});
@@ -2577,8 +2546,7 @@ class FlutterImclient {
   }
 
   ///修改频道信息
-  static Future<void> modifyChannelInfo(
-      String channelId,
+  static Future<void> modifyChannelInfo(String channelId,
       ModifyChannelInfoType modifyType,
       String newValue,
       OperationSuccessVoidCallback successCallback,
@@ -2596,8 +2564,7 @@ class FlutterImclient {
   }
 
   ///搜索频道
-  static Future<void> searchChannel(
-      String keyword,
+  static Future<void> searchChannel(String keyword,
       OperationSuccessChannelInfosCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2615,8 +2582,7 @@ class FlutterImclient {
   }
 
   ///订阅/取消订阅频道
-  static Future<void> listenChannel(
-      String channelId,
+  static Future<void> listenChannel(String channelId,
       bool isListen,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2640,8 +2606,7 @@ class FlutterImclient {
   }
 
   ///销毁频道
-  static Future<void> destoryChannel(
-      String channelId,
+  static Future<void> destoryChannel(String channelId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2659,8 +2624,7 @@ class FlutterImclient {
   }
 
   ///踢掉PC客户端
-  static Future<void> kickoffPCClient(
-      String clientId,
+  static Future<void> kickoffPCClient(String clientId,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2677,8 +2641,7 @@ class FlutterImclient {
   }
 
   ///设置/取消设置当PC在线时停止手机通知
-  static Future<void> muteNotificationWhenPcOnline(
-      bool isMute,
+  static Future<void> muteNotificationWhenPcOnline(bool isMute,
       OperationSuccessVoidCallback successCallback,
       OperationFailureCallback errorCallback) async {
     int requestId = _requestId++;
@@ -2690,13 +2653,12 @@ class FlutterImclient {
   }
 
   ///获取会话文件记录
-  static Future<void> getConversationFiles(
-      int beforeMessageUid,
+  static Future<void> getConversationFiles(int beforeMessageUid,
       int count,
       OperationSuccessFilesCallback successCallback,
       OperationFailureCallback errorCallback,
       {Conversation? conversation,
-      String? fromUser}) async {
+        String? fromUser}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2711,8 +2673,7 @@ class FlutterImclient {
   }
 
   ///获取我的文件记录
-  static Future<void> getMyFiles(
-      int beforeMessageUid,
+  static Future<void> getMyFiles(int beforeMessageUid,
       int count,
       OperationSuccessFilesCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2728,8 +2689,7 @@ class FlutterImclient {
   }
 
   ///删除文件记录
-  static Future<void> deleteFileRecord(
-      int messageUid,
+  static Future<void> deleteFileRecord(int messageUid,
       int count,
       OperationSuccessFilesCallback successCallback,
       OperationFailureCallback errorCallback) async {
@@ -2742,14 +2702,13 @@ class FlutterImclient {
   }
 
   ///搜索文件记录
-  static Future<void> searchFiles(
-      String keyword,
+  static Future<void> searchFiles(String keyword,
       int beforeMessageUid,
       int count,
       OperationSuccessFilesCallback successCallback,
       OperationFailureCallback errorCallback,
       {Conversation? conversation,
-      String? fromUser}) async {
+        String? fromUser}) async {
     int requestId = _requestId++;
     if (successCallback != null)
       _operationSuccessCallbackMap[requestId] = successCallback;
@@ -2765,8 +2724,7 @@ class FlutterImclient {
   }
 
   ///搜索我的文件记录
-  static Future<void> searchMyFiles(
-      String keyword,
+  static Future<void> searchMyFiles(String keyword,
       int beforeMessageUid,
       int count,
       OperationSuccessFilesCallback successCallback,
@@ -2784,8 +2742,7 @@ class FlutterImclient {
   }
 
   ///获取经过授权的媒体路径
-  static Future<void> getAuthorizedMediaUrl(
-      String mediaPath,
+  static Future<void> getAuthorizedMediaUrl(String mediaPath,
       int messageUid,
       int mediaType,
       OperationSuccessStringCallback successCallback,
