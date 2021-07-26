@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.meizu.cloud.pushsdk.MzPushMessageReceiver;
+import com.meizu.cloud.pushsdk.handler.MzPushMessage;
 import com.meizu.cloud.pushsdk.platform.message.PushSwitchStatus;
 import com.meizu.cloud.pushsdk.platform.message.RegisterStatus;
 import com.meizu.cloud.pushsdk.platform.message.SubAliasStatus;
@@ -29,31 +30,66 @@ import cn.wildfirechat.push.PushService;
 import cn.wildfirechat.push.PushType;
 
 public class MeizuPushReceiver extends MzPushMessageReceiver {
+    public static final String TAG = "MeizuPushReceiver";
+
+    /**
+     * 当用户点击通知栏消息后会在此方法回调
+     * @param context
+     * @param mzPushMessage
+     */
+    @Override
+    public void onNotificationClicked(Context context, MzPushMessage mzPushMessage) {
+        PushService.showMainActivity(context);
+    }
+    /**
+     * 当推送的通知栏消息展示后且应用进程存在时会在此方法回调
+     * @param context
+     * @param mzPushMessage
+     */
+    @Override
+    public void onNotificationArrived(Context context, MzPushMessage mzPushMessage) {
+        super.onNotificationArrived(context,mzPushMessage);
+        Log.e(TAG, "onNotificationArrived");
+    }
+
+
+//    @Override
+//    public void onRegister(Context context, String pushId) {
+//        Log.e(TAG, "onReceiveClientId -> " + "pushId = " + pushId);
+//        if(PushService.getInstance().getCallback() != null)
+//            PushService.getInstance().getCallback().onPushToken(PushType.MEIZU, pushId);
+//    }
+//
+//    @Override
+//    public void onUnRegister(Context context, boolean success) {
+//
+//    }
+
+
+//    @Override
+//    public void onNotificationDeleted(Context context, String title, String content, String selfDefineContentString) {
+//        super.onNotificationDeleted(context, title, content, selfDefineContentString);
+//        Log.e(TAG, "onND");
+//    }
 
     @Override
-    public void onRegister(Context context, String pushId) {
-        Log.e(TAG, "onReceiveClientId -> " + "pushId = " + pushId);
-        if(PushService.getInstance().getCallback() != null)
-            PushService.getInstance().getCallback().onPushToken(PushType.MEIZU, pushId);
+    public void onNotifyMessageArrived(Context context, String message) {
+        super.onNotifyMessageArrived(context, message);
+        Log.e(TAG, "onNMA");
     }
 
     @Override
-    public void onUnRegister(Context context, boolean success) {
+    public void onRegisterStatus(Context context, RegisterStatus registerStatus) {
+
+    }
+
+    @Override
+    public void onUnRegisterStatus(Context context, UnRegisterStatus unRegisterStatus) {
 
     }
 
     @Override
     public void onPushStatus(Context context, PushSwitchStatus pushSwitchStatus) {
-        Log.e(TAG, "onPS " + pushSwitchStatus);
-    }
-
-    @Override
-    public void onRegisterStatus(Context context, RegisterStatus registerStatus) {
-        Log.e(TAG, "onRS " + registerStatus);
-    }
-
-    @Override
-    public void onUnRegisterStatus(Context context, UnRegisterStatus unRegisterStatus) {
 
     }
 
@@ -65,29 +101,6 @@ public class MeizuPushReceiver extends MzPushMessageReceiver {
     @Override
     public void onSubAliasStatus(Context context, SubAliasStatus subAliasStatus) {
 
-    }
-
-    @Override
-    public void onNotificationClicked(Context context, String title, String content, String selfDefineContentString) {
-        PushService.showMainActivity(context);
-    }
-
-    @Override
-    public void onNotificationArrived(Context context, String title, String content, String selfDefineContentString) {
-        super.onNotificationArrived(context, title, content, selfDefineContentString);
-        Log.e(TAG, "onNA");
-    }
-
-    @Override
-    public void onNotificationDeleted(Context context, String title, String content, String selfDefineContentString) {
-        super.onNotificationDeleted(context, title, content, selfDefineContentString);
-        Log.e(TAG, "onND");
-    }
-
-    @Override
-    public void onNotifyMessageArrived(Context context, String message) {
-        super.onNotifyMessageArrived(context, message);
-        Log.e(TAG, "onNMA");
     }
 
     @Override
@@ -137,4 +150,5 @@ public class MeizuPushReceiver extends MzPushMessageReceiver {
         }
         return jsonObject.toString();
     }
+
 }

@@ -48,7 +48,8 @@ dependencies {
     implementation 'com.huawei.hms:push:4.0.3.301'
 
     implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
-    implementation 'com.meizu.flyme.internet:push-internal:3.4.2@aar'
+//    implementation 'com.meizu.flyme.internet:push-internal:3.4.2@aar'
+    implementation 'com.meizu.flyme.internet:push-internal:4.1.0'
 
     def lifecycle_version = '2.2.0'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"

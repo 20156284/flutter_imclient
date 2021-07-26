@@ -77,10 +77,12 @@ public class PushService {
         if (SYS_EMUI.equals(sys)) {
             INST.pushServiceType = PushServiceType.HMS;
             INST.initHMS(gContext);
-        } else if (/*SYS_FLYME.equals(sys) && INST.isMZConfigured(gContext)*/MzSystemUtils.isBrandMeizu()) {
-            INST.pushServiceType = PushServiceType.MeiZu;
-            INST.initMZ(gContext);
-        } else if (SYS_VIVO.equalsIgnoreCase(sys)) {
+        }
+//        else if (/*SYS_FLYME.equals(sys) && INST.isMZConfigured(gContext)*/MzSystemUtils.isBrandMeizu(gContext)) {
+//            INST.pushServiceType = PushServiceType.MeiZu;
+//            INST.initMZ(gContext);
+//        }
+        else if (SYS_VIVO.equalsIgnoreCase(sys)) {
             INST.pushServiceType = PushServiceType.VIVO;
             INST.initVIVO(gContext);
         } else if (PushManager.isSupportPush(gContext)) {
