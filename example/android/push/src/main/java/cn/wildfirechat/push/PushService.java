@@ -198,40 +198,40 @@ public class PushService {
         }
     }
 
-    private boolean isMZConfigured(Context context) {
-        String packageName = context.getPackageName();
-        try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            if (appInfo.metaData != null) {
-                String appid = appInfo.metaData.getString("MEIZU_APP_ID");
-                String appkey = appInfo.metaData.getString("MEIZU_APP_KEY");
-                return !TextUtils.isEmpty(appid) && !TextUtils.isEmpty(appkey);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean initMZ(Context context) {
-        String packageName = context.getPackageName();
-        try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            if (appInfo.metaData != null) {
-                String appId = "" + appInfo.metaData.get("MEIZU_PUSH_APP_ID");
-                String appKey = appInfo.metaData.getString("MEIZU_PUSH_APP_KEY");
-                if (!TextUtils.isEmpty(appId) && !TextUtils.isEmpty(appKey)) {
-                    String pushId = com.meizu.cloud.pushsdk.PushManager.getPushId(context);
-                    com.meizu.cloud.pushsdk.PushManager.register(context, String.valueOf(appId), appKey);
-                    com.meizu.cloud.pushsdk.PushManager.switchPush(context, String.valueOf(appId), appKey, pushId, 1, true);
-                    mCallback.onPushToken(PushType.MEIZU, pushId);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+//    private boolean isMZConfigured(Context context) {
+//        String packageName = context.getPackageName();
+//        try {
+//            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+//            if (appInfo.metaData != null) {
+//                String appid = appInfo.metaData.getString("MEIZU_APP_ID");
+//                String appkey = appInfo.metaData.getString("MEIZU_APP_KEY");
+//                return !TextUtils.isEmpty(appid) && !TextUtils.isEmpty(appkey);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
+//
+//    private boolean initMZ(Context context) {
+//        String packageName = context.getPackageName();
+//        try {
+//            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+//            if (appInfo.metaData != null) {
+//                String appId = "" + appInfo.metaData.get("MEIZU_PUSH_APP_ID");
+//                String appKey = appInfo.metaData.getString("MEIZU_PUSH_APP_KEY");
+//                if (!TextUtils.isEmpty(appId) && !TextUtils.isEmpty(appKey)) {
+//                    String pushId = com.meizu.cloud.pushsdk.PushManager.getPushId(context);
+//                    com.meizu.cloud.pushsdk.PushManager.register(context, String.valueOf(appId), appKey);
+//                    com.meizu.cloud.pushsdk.PushManager.switchPush(context, String.valueOf(appId), appKey, pushId, 1, true);
+//                    mCallback.onPushToken(PushType.MEIZU, pushId);
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
 
     private void initVIVO(Context context) {
 
@@ -361,9 +361,11 @@ public class PushService {
                 || prop.getProperty(KEY_EMUI_VERSION, null) != null
                 || prop.getProperty(KEY_EMUI_CONFIG_HW_SYS_VERSION, null) != null) {
                 SYS = SYS_EMUI;//华为
-            } else if (getMeizuFlymeOSFlag().toLowerCase().contains("flyme")) {
-                SYS = SYS_FLYME;//魅族
-            } else if (!TextUtils.isEmpty(getProp(KEY_VERSION_VIVO))) {
+            } 
+//            else if (getMeizuFlymeOSFlag().toLowerCase().contains("flyme")) {
+//                SYS = SYS_FLYME;//魅族
+//            } 
+            else if (!TextUtils.isEmpty(getProp(KEY_VERSION_VIVO))) {
                 SYS = SYS_VIVO;
             }
         } catch (Exception e) {
@@ -384,19 +386,19 @@ public class PushService {
         return SYS;
     }
 
-    public static String getMeizuFlymeOSFlag() {
-        return getSystemProperty("ro.build.display.id", "");
-    }
+//    public static String getMeizuFlymeOSFlag() {
+//        return getSystemProperty("ro.build.display.id", "");
+//    }
 
-    private static String getSystemProperty(String key, String defaultValue) {
-        try {
-            Class<?> clz = Class.forName("android.os.SystemProperties");
-            Method get = clz.getMethod("get", String.class, String.class);
-            return (String) get.invoke(clz, key, defaultValue);
-        } catch (Exception e) {
-        }
-        return defaultValue;
-    }
+//    private static String getSystemProperty(String key, String defaultValue) {
+//        try {
+//            Class<?> clz = Class.forName("android.os.SystemProperties");
+//            Method get = clz.getMethod("get", String.class, String.class);
+//            return (String) get.invoke(clz, key, defaultValue);
+//        } catch (Exception e) {
+//        }
+//        return defaultValue;
+//    }
 
     public static String getProp(String name) {
         String line = null;
